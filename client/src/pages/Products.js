@@ -8,7 +8,7 @@ import {
   Loader, 
   ShoppingCart, 
   Heart, 
-  Grid3X3,
+  Grid,
   List,
   SlidersHorizontal,
   X,
@@ -124,7 +124,7 @@ const Products = () => {
                   onClick={() => setViewMode('grid')}
                   className={`p-2 ${viewMode === 'grid' ? 'bg-pink-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
                 >
-                  <Grid3X3 className="h-4 w-4" />
+                  <Grid className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
