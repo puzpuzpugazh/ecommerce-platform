@@ -1,5 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+
+// Get the base URL for API calls
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? window.location.origin 
+  : 'http://localhost:5000';
 
 // Get user from localStorage
 const user = JSON.parse(localStorage.getItem('user'));
@@ -15,21 +19,29 @@ const initialState = {
 // Register user
 export const register = createAsyncThunk(
   'auth/register',
-  async (userData, thunkAPI) => {
+  async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/auth/register', userData);
-      if (response.data) {
-        localStorage.setItem('user', JSON.stringify(response.data));
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Registration failed');
       }
-      return response.data;
+      
+      if (data) {
+        localStorage.setItem('user', JSON.stringify(data));
+      }
+      
+      return data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -37,21 +49,29 @@ export const register = createAsyncThunk(
 // Login user
 export const login = createAsyncThunk(
   'auth/login',
-  async (userData, thunkAPI) => {
+  async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/auth/login', userData);
-      if (response.data) {
-        localStorage.setItem('user', JSON.stringify(response.data));
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Login failed');
       }
-      return response.data;
+      
+      if (data) {
+        localStorage.setItem('user', JSON.stringify(data));
+      }
+      
+      return data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -64,24 +84,25 @@ export const logout = createAsyncThunk('auth/logout', async () => {
 // Get user profile
 export const getProfile = createAsyncThunk(
   'auth/getProfile',
-  async (_, thunkAPI) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
-      const token = thunkAPI.getState().auth.user?.token;
-      const config = {
+      const token = getState().auth.user?.token;
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      };
-      const response = await axios.get('/api/auth/me', config);
-      return response.data;
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Failed to get profile');
+      }
+      
+      return data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -89,24 +110,28 @@ export const getProfile = createAsyncThunk(
 // Update user profile
 export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
-  async (userData, thunkAPI) => {
+  async (userData, { getState, rejectWithValue }) => {
     try {
-      const token = thunkAPI.getState().auth.user?.token;
-      const config = {
+      const token = getState().auth.user?.token;
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+        method: 'PUT',
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-      };
-      const response = await axios.put('/api/auth/profile', userData, config);
-      return response.data;
+        body: JSON.stringify(userData),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Failed to update profile');
+      }
+      
+      return data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );

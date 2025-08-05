@@ -1,5 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+
+// Get the base URL for API calls
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? window.location.origin 
+  : 'http://localhost:5000';
 
 const initialState = {
   orders: [],
@@ -14,24 +18,27 @@ const initialState = {
 // Create order
 export const createOrder = createAsyncThunk(
   'orders/create',
-  async (orderData, thunkAPI) => {
+  async (orderData, { getState, rejectWithValue }) => {
     try {
-      const token = thunkAPI.getState().auth.user?.token;
-      const config = {
+      const token = getState().auth.user?.token;
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-      };
-      const response = await axios.post('/api/orders', orderData, config);
-      return response.data;
+        body: JSON.stringify(orderData),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Failed to create order');
+      }
+      
+      return data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -39,25 +46,26 @@ export const createOrder = createAsyncThunk(
 // Get user orders
 export const getUserOrders = createAsyncThunk(
   'orders/getUserOrders',
-  async (params, thunkAPI) => {
+  async (params, { getState, rejectWithValue }) => {
     try {
-      const token = thunkAPI.getState().auth.user?.token;
-      const config = {
+      const token = getState().auth.user?.token;
+      const { page = 1 } = params || {};
+      
+      const response = await fetch(`${API_BASE_URL}/api/orders/myorders?page=${page}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      };
-      const { page = 1 } = params || {};
-      const response = await axios.get(`/api/orders/myorders?page=${page}`, config);
-      return response.data;
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Failed to fetch orders');
+      }
+      
+      return data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -65,24 +73,25 @@ export const getUserOrders = createAsyncThunk(
 // Get order by ID
 export const getOrderById = createAsyncThunk(
   'orders/getById',
-  async (id, thunkAPI) => {
+  async (id, { getState, rejectWithValue }) => {
     try {
-      const token = thunkAPI.getState().auth.user?.token;
-      const config = {
+      const token = getState().auth.user?.token;
+      
+      const response = await fetch(`${API_BASE_URL}/api/orders/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      };
-      const response = await axios.get(`/api/orders/${id}`, config);
-      return response.data;
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Failed to fetch order');
+      }
+      
+      return data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -90,28 +99,28 @@ export const getOrderById = createAsyncThunk(
 // Get all orders (Admin)
 export const getAllOrders = createAsyncThunk(
   'orders/getAll',
-  async (params, thunkAPI) => {
+  async (params, { getState, rejectWithValue }) => {
     try {
-      const token = thunkAPI.getState().auth.user?.token;
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
+      const token = getState().auth.user?.token;
       const { page = 1, status = '' } = params || {};
       const queryParams = new URLSearchParams({ page });
       if (status) queryParams.append('status', status);
       
-      const response = await axios.get(`/api/orders?${queryParams}`, config);
-      return response.data;
+      const response = await fetch(`${API_BASE_URL}/api/orders?${queryParams}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Failed to fetch orders');
+      }
+      
+      return data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -119,24 +128,28 @@ export const getAllOrders = createAsyncThunk(
 // Update order to paid
 export const updateOrderToPaid = createAsyncThunk(
   'orders/updateToPaid',
-  async ({ orderId, paymentResult }, thunkAPI) => {
+  async ({ orderId, paymentResult }, { getState, rejectWithValue }) => {
     try {
-      const token = thunkAPI.getState().auth.user?.token;
-      const config = {
+      const token = getState().auth.user?.token;
+      
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/pay`, {
+        method: 'PUT',
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-      };
-      const response = await axios.put(`/api/orders/${orderId}/pay`, paymentResult, config);
-      return response.data;
+        body: JSON.stringify(paymentResult),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Failed to update order');
+      }
+      
+      return data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -144,24 +157,28 @@ export const updateOrderToPaid = createAsyncThunk(
 // Update order to delivered (Admin)
 export const updateOrderToDelivered = createAsyncThunk(
   'orders/updateToDelivered',
-  async (orderId, thunkAPI) => {
+  async (orderId, { getState, rejectWithValue }) => {
     try {
-      const token = thunkAPI.getState().auth.user?.token;
-      const config = {
+      const token = getState().auth.user?.token;
+      
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/deliver`, {
+        method: 'PUT',
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-      };
-      const response = await axios.put(`/api/orders/${orderId}/deliver`, {}, config);
-      return response.data;
+        body: JSON.stringify({}),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Failed to update order');
+      }
+      
+      return data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -169,24 +186,28 @@ export const updateOrderToDelivered = createAsyncThunk(
 // Update order status (Admin)
 export const updateOrderStatus = createAsyncThunk(
   'orders/updateStatus',
-  async ({ orderId, status }, thunkAPI) => {
+  async ({ orderId, status }, { getState, rejectWithValue }) => {
     try {
-      const token = thunkAPI.getState().auth.user?.token;
-      const config = {
+      const token = getState().auth.user?.token;
+      
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
+        method: 'PUT',
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-      };
-      const response = await axios.put(`/api/orders/${orderId}/status`, { status }, config);
-      return response.data;
+        body: JSON.stringify({ status }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Failed to update order status');
+      }
+      
+      return data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
