@@ -31,7 +31,16 @@ app.use(limiter);
 // CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://ecommerce-platform-9jelconq8-puzpuzpugazhs-projects.vercel.app', 'https://ecommerce-platform-qu1svty2j-puzpuzpugazhs-projects.vercel.app', 'https://ecommerce-platform-3lcmjqhxg-puzpuzpugazhs-projects.vercel.app']
+    ? (origin, callback) => {
+        // Allow Vercel preview and production deployments dynamically
+        if (!origin) return callback(null, true); // allow non-browser requests
+        const vercelRegex = /^https:\/\/ecommerce-platform-[a-z0-9]+-puzpuzpugazhs-projects\.vercel\.app$/;
+        if (vercelRegex.test(origin)) {
+          return callback(null, true);
+        }
+        // You can add more allowed origins here if needed
+        callback(new Error('Not allowed by CORS'));
+      }
     : 'http://localhost:3000',
   credentials: true
 }));
