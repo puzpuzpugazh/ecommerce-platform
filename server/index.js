@@ -34,10 +34,19 @@ app.use(cors({
     ? (origin, callback) => {
         // Allow Vercel preview and production deployments dynamically
         if (!origin) return callback(null, true); // allow non-browser requests
-        const vercelRegex = /^https:\/\/ecommerce-platform-[a-z0-9]+-puzpuzpugazhs-projects\.vercel\.app$/;
-        if (vercelRegex.test(origin)) {
+        
+        // Allow various Vercel deployment patterns
+        const allowedOrigins = [
+          /^https:\/\/ecommerce-platform-[a-z0-9]+-puzpuzpugazhs-projects\.vercel\.app$/,
+          /^https:\/\/ecommerce-platform-[a-z0-9-]+\.vercel\.app$/,
+          /^https:\/\/ecommerce-platform-gamma-two\.vercel\.app$/
+        ];
+        
+        const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
+        if (isAllowed) {
           return callback(null, true);
         }
+        
         // You can add more allowed origins here if needed
         callback(new Error('Not allowed by CORS'));
       }
