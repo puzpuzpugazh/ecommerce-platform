@@ -61,6 +61,23 @@ app.use('/api/users', userRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'E-commerce Backend API is running!',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      test: '/api/test',
+      products: '/api/products',
+      auth: '/api/auth',
+      orders: '/api/orders',
+      payments: '/api/payments'
+    }
+  });
+});
+
 // Debug route to test if server is working
 app.get('/api/test', (req, res) => {
   res.json({ success: true, message: 'Backend is working!' });
