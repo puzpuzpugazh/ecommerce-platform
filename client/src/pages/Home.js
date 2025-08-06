@@ -14,7 +14,8 @@ import {
   Heart,
   Eye,
   Clock,
-  CheckCircle
+  CheckCircle,
+  RefreshCw
 } from 'lucide-react';
 import { getFeaturedProducts } from '../store/slices/productSlice';
 import { addToCart } from '../store/slices/cartSlice';
@@ -27,6 +28,18 @@ const Home = () => {
 
   useEffect(() => {
     dispatch(getFeaturedProducts());
+    
+    // Test API connection
+    const testAPI = async () => {
+      try {
+        const response = await fetch('https://ecommerce-backend-j0xx.onrender.com/api/test');
+        const data = await response.json();
+        console.log('API Test Result:', data);
+      } catch (error) {
+        console.error('API Test Error:', error);
+      }
+    };
+    testAPI();
   }, [dispatch]);
 
   const handleAddToCart = (product) => {
