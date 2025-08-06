@@ -10,10 +10,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#ec4899",
-  "background_color": "#ffffff",
-  "description": "A modern e-commerce platform with beautiful UI and seamless shopping experience",
-  "categories": ["shopping", "ecommerce", "retail"],
-  "lang": "en-US",
-  "orientation": "portrait-primary"
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
 } 

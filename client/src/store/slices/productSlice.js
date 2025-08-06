@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Get the base URL for API calls
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? window.location.origin 
+  ? process.env.REACT_APP_API_URL || 'https://ecommerce-backend-j0xx.onrender.com'
   : 'http://localhost:5000';
 
 // Async thunk for fetching all products
