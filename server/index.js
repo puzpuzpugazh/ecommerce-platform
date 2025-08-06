@@ -61,6 +61,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 
+// Debug route to test if server is working
+app.get('/api/test', (req, res) => {
+  res.json({ success: true, message: 'Backend is working!' });
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'E-commerce API is running' });

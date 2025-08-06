@@ -56,7 +56,6 @@ const paymentSchema = new mongoose.Schema({
   },
   transactionId: {
     type: String,
-    unique: true,
     required: false
   },
   failureReason: {
