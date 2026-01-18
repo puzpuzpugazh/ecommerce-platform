@@ -80,8 +80,9 @@ const Home = () => {
               </div>
               
               <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                Discover Amazing
+                Discover Amazing &nbsp;
                 <span className="block gradient-text">Products</span>
+                &nbsp;
                 <span className="text-2xl lg:text-3xl font-normal text-gray-600">at Unbeatable Prices</span>
               </h1>
               
@@ -89,7 +90,7 @@ const Home = () => {
                 Shop the latest trends with confidence. Quality products, fast delivery, and exceptional customer service.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-center lg:justify-start">
                 <Link
                   to="/products"
                   className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-4 rounded-full font-semibold hover:from-pink-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
